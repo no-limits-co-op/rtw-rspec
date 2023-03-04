@@ -48,7 +48,6 @@ it 'should fail if assert failed' do
   expect(result.error.to_s).to eq("AssertError - expect: 8;actual: 3;")
 end
 
-
 # TODO: statistic the number of all testcases
 #   TODO: failed number
 #   TODO: success number
@@ -67,3 +66,4 @@ end
 # TODO: print description of describe & context
 #   TODO: print description of describe or context
 #   TODO: print format - testcase and testcase group
+# TODO: print testcase count
