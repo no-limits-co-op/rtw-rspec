@@ -3,7 +3,7 @@ require_relative 'rspec/assertion.rb'
 require_relative 'rspec/test_result.rb'
 
 module Rspec
-  def self.it(description = nil)
+  def it(description = nil)
     begin
       yield
       result = TestResult.new(description)
@@ -12,14 +12,14 @@ module Rspec
     end
 
     result.print
-    return result
+    result
   end
 
-  def self.eq(expectation)
+  def eq(expectation)
     Matcher.new(expectation)
   end
 
-  def self.expect(realistic)
+  def expect(realistic)
     Assertion.new(realistic)
   end
 end

@@ -1,4 +1,7 @@
 require "rtw/rspec/version"
+require "rtw/rspec/rspec"
+
+include Rspec
 
 module Rtw
   module Rspec
