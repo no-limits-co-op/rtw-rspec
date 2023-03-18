@@ -60,6 +60,7 @@ it 'describe should run a group of testcases' do
     expect(result.passed?).to eq(true)
   end
 end
+
 # TODO: statistic the number of all testcases
 #   TODO: failed number
 #   TODO: success number

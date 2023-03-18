@@ -3,16 +3,13 @@ require_relative 'rspec/assertion.rb'
 require_relative 'rspec/test_result.rb'
 
 module Rspec
-  def it(description = nil)
-    begin
-      yield
-      result = TestResult.new(description)
-    rescue StandardError => e
-      result = TestResult.new(description, e)
+  def it(description = nil, &block)
+    results = describe '' do
+      it description do
+        block.call
+      end
     end
-
-    result.print
-    result
+    results.first
   end
 
   def eq(expectation)
