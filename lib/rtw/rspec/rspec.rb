@@ -1,5 +1,3 @@
-require 'sourcify'
-
 require_relative 'rspec/matcher.rb'
 require_relative 'rspec/assertion.rb'
 require_relative 'rspec/test_result.rb'
@@ -26,7 +24,7 @@ module Rspec
   end
 
   def describe(description = nil, &block)
-    Runner.new.run(block.to_source)
+    Runner.new.run(block)
   end
 
   class Runner
@@ -36,7 +34,7 @@ module Rspec
 
     def run(testcases)
       @stack.push(Struct.new(:results).new([]))
-      eval(testcases).call
+      instance_eval(&testcases)
       @stack.pop.results
     end
 

@@ -5,4 +5,3 @@ source 'https://gems.ruby-china.com'
 gemspec
 
 gem "rake", "~> 12.0"
-gem 'sourcify', '~> 0.5.0'
