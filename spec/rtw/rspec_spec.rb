@@ -50,6 +50,16 @@ end
 
 # TODO: describe a group of testcase
 #   run testcase by group
+it 'describe should run a group of testcases' do
+  results = describe 'first group' do
+    it { expect(3).to eq(3) }
+    it { expect(3).to eq(3) }
+  end
+
+  results.each do |result|
+    expect(result.passed?).to eq(true)
+  end
+end
 # TODO: statistic the number of all testcases
 #   TODO: failed number
 #   TODO: success number
