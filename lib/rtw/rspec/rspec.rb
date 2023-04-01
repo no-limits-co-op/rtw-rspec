@@ -22,7 +22,9 @@ module Rspec
 
   def describe(description = nil, &block)
     puts description unless description.nil?
-    Runner.new.run(block)
+    results = Runner.new.run(block)
+    puts "\ntotal: #{results.results.size}, failed: #{results.failed.size}, passed: #{results.passed.size}"
+    results
   end
 
   alias_method :context, :describe

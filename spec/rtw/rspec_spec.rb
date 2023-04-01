@@ -15,10 +15,14 @@ end
 it 'should display testcase description' do
   begin
     $stdout = StringIO.new
-    description = 'should pass'
-    it description do
+    description = <<~DESC
+      should pass
+
+      total: 1, failed: 0, passed: 1
+    DESC
+    it 'should pass' do
     end
-    expect($stdout.string).to eq("#{description}\n")
+    expect($stdout.string).to eq(description)
   ensure
     $stdout = STDOUT
   end
@@ -27,11 +31,15 @@ end
 it 'should tag failed if testcase is failed' do
   begin
     $stdout = StringIO.new
-    description = 'should fail'
-    it description do
+    description = <<~DESC
+      should fail - failed
+
+      total: 1, failed: 1, passed: 0
+    DESC
+    it 'should fail' do
       raise StandardError
     end
-    expect($stdout.string).to eq("#{description} - failed\n")
+    expect($stdout.string).to eq(description)
   ensure
     $stdout = STDOUT
   end
@@ -95,14 +103,14 @@ it 'should run multiple level nested testcase' do
   expect(results.results.size).to eq(2)
 end
 
-it 'should print description of describe and context' do
+it 'should print description and run statistic of describe and context' do
   begin
     $stdout = StringIO.new
     describe 'nested testcase level 1' do
       context 'nested testcase level 2' do
         describe 'nested testcase level 3' do
           it { expect(81192).to eq(81192) }
-          it { expect(3).to eq(3) }
+          it { expect(3).to eq(2) }
         end
       end
     end
@@ -111,6 +119,8 @@ it 'should print description of describe and context' do
       nested testcase level 1
         nested testcase level 2
           nested testcase level 3
+    
+      total: 2, failed: 1, passed: 1
     DESC
 
     expect($stdout.string).to eq(description)
@@ -118,4 +128,5 @@ it 'should print description of describe and context' do
     $stdout = STDOUT
   end
 end
-# TODO: print testcase count
+
+# TODO: print testcase by nested ordering
