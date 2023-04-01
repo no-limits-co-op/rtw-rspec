@@ -46,12 +46,14 @@ class Runner
     @describe_stack.pop
   end
 
-  def context(description, &block)
+  def describe(description, &block)
     results = run(block)
     parent = @describe_stack.pop
     parent.results.concat(results.results)
     @describe_stack.push(parent)
   end
+
+  alias context describe
 
   def it(description = nil)
     begin

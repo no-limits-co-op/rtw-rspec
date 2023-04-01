@@ -1,6 +1,6 @@
 module Rspec
   class TestResult
-    attr_reader :error
+    attr_reader :error, :description
 
     def initialize(description, error = nil)
       @description = description

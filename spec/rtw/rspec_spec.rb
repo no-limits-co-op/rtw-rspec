@@ -71,21 +71,24 @@ it 'should count testcases number' do
   expect(results.passed.size).to eq(2)
 end
 
-# TODO: nested group by using describe & context keyword
-#    example:
-#       ```
-#         describe 'xxx' do
-#           context 'yyy' do
-#              it 'zzz1' do; end
-#              it 'zzz2' do; end
-#           end
-#         end
-#       ```
 it 'should run nested testcase' do
   results = describe 'nested testcase level 1' do
     context 'nested testcase level 2' do
       it { expect(81192).to eq(81192) }
       it { expect(3).to eq(3) }
+    end
+  end
+
+  expect(results.results.size).to eq(2)
+end
+
+it 'should run multiple level nested testcase' do
+  results = describe 'nested testcase level 1' do
+    context 'nested testcase level 2' do
+      describe 'nested testcase level 3' do
+        it { expect(81192).to eq(81192) }
+        it { expect(3).to eq(3) }
+      end
     end
   end
 
