@@ -11,6 +11,10 @@ module Rspec
       error.nil?
     end
 
+    def failed?
+      !passed?
+    end
+
     def print
       puts "#{@description}#{passed? ? '' : ' - failed'}" unless @description.nil?
     end

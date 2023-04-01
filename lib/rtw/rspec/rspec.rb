@@ -8,7 +8,7 @@ module Rspec
       it description do
         block.call
       end
-    end
+    end.results
     results.first
   end
 
@@ -30,9 +30,17 @@ module Rspec
     end
 
     def run(testcases)
-      @stack.push(Struct.new(:results).new([]))
+      @stack.push(Struct.new(:results) do
+        def failed
+          results.select(&:failed?)
+        end
+
+        def passed
+          results.select(&:passed?)
+        end
+      end.new([]))
       instance_eval(&testcases)
-      @stack.pop.results
+      @stack.pop
     end
 
     def it(description = nil)

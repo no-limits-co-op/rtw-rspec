@@ -52,16 +52,25 @@ it 'describe should run a group of testcases' do
   results = describe 'first group' do
     it { expect(3).to eq(3) }
     it { expect(3).to eq(3) }
-  end
+  end.results
 
   results.each do |result|
     expect(result.passed?).to eq(true)
   end
 end
 
-# TODO: statistic the number of all testcases
-#   TODO: failed number
-#   TODO: success number
+it 'should count testcases number' do
+  results = describe 'testcases with passed and failed' do
+    it { expect(1).to eq(2) }
+    it { expect(1).to eq(3) }
+    it { expect(3).to eq(3) }
+    it { expect(3).to eq(3) }
+  end
+
+  expect(results.failed.size).to eq(2)
+  expect(results.passed.size).to eq(2)
+end
+
 # TODO: nested group by using describe & context keyword
 #    example:
 #       ```
