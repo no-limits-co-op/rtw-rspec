@@ -48,8 +48,6 @@ it 'should fail if assert failed' do
   expect(result.error.to_s).to eq("AssertError - expect: 8;actual: 3;")
 end
 
-# TODO: describe a group of testcase
-#   run testcase by group
 it 'describe should run a group of testcases' do
   results = describe 'first group' do
     it { expect(3).to eq(3) }
