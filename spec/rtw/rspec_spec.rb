@@ -81,6 +81,16 @@ end
 #           end
 #         end
 #       ```
+it 'should run nested testcase' do
+  results = describe 'nested testcase level 1' do
+    context 'nested testcase level 2' do
+      it { expect(81192).to eq(81192) }
+      it { expect(3).to eq(3) }
+    end
+  end
+
+  expect(results.results.size).to eq(2)
+end
 # TODO: print description of describe & context
 #   TODO: print description of describe or context
 #   TODO: print format - testcase and testcase group

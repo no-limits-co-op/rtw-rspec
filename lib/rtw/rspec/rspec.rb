@@ -24,38 +24,47 @@ module Rspec
     Runner.new.run(block)
   end
 
-  class Runner
-    def initialize
-      @stack = []
-    end
+  alias_method :context, :describe
+end
 
-    def run(testcases)
-      @stack.push(Struct.new(:results) do
-        def failed
-          results.select(&:failed?)
-        end
+class Runner
+  def initialize
+    @describe_stack = []
+  end
 
-        def passed
-          results.select(&:passed?)
-        end
-      end.new([]))
-      instance_eval(&testcases)
-      @stack.pop
-    end
-
-    def it(description = nil)
-      begin
-        yield
-        result = TestResult.new(description)
-      rescue StandardError => e
-        result = TestResult.new(description, e)
+  def run(testcases)
+    @describe_stack.push(Struct.new(:results) do
+      def failed
+        results.select(&:failed?)
       end
 
-      result.print
-      parent = @stack.pop
-      parent.results << result
-      @stack.push(parent)
-      result
+      def passed
+        results.select(&:passed?)
+      end
+    end.new([]))
+    instance_eval(&testcases)
+    @describe_stack.pop
+  end
+
+  def context(description, &block)
+    results = run(block)
+    parent = @describe_stack.pop
+    parent.results.concat(results.results)
+    @describe_stack.push(parent)
+  end
+
+  def it(description = nil)
+    begin
+      yield
+      result = TestResult.new(description)
+    rescue StandardError => e
+      result = TestResult.new(description, e)
     end
+
+    result.print
+    parent = @describe_stack.pop
+    parent.results << result
+    @describe_stack.push(parent)
+    result
   end
 end
