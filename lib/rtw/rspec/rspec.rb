@@ -4,7 +4,7 @@ require_relative 'rspec/test_result.rb'
 
 module Rspec
   def it(description = nil, &block)
-    results = describe '' do
+    results = describe do
       it description do
         block.call
       end
@@ -21,6 +21,7 @@ module Rspec
   end
 
   def describe(description = nil, &block)
+    puts description unless description.nil?
     Runner.new.run(block)
   end
 
@@ -47,6 +48,7 @@ class Runner
   end
 
   def describe(description, &block)
+    puts "#{'  ' * @describe_stack.size}#{description}" unless description.nil?
     results = run(block)
     parent = @describe_stack.pop
     parent.results.concat(results.results)

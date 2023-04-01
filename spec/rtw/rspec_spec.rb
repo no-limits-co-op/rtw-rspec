@@ -94,7 +94,28 @@ it 'should run multiple level nested testcase' do
 
   expect(results.results.size).to eq(2)
 end
-# TODO: print description of describe & context
-#   TODO: print description of describe or context
-#   TODO: print format - testcase and testcase group
+
+it 'should print description of describe and context' do
+  begin
+    $stdout = StringIO.new
+    describe 'nested testcase level 1' do
+      context 'nested testcase level 2' do
+        describe 'nested testcase level 3' do
+          it { expect(81192).to eq(81192) }
+          it { expect(3).to eq(3) }
+        end
+      end
+    end
+
+    description = <<~DESC
+      nested testcase level 1
+        nested testcase level 2
+          nested testcase level 3
+    DESC
+
+    expect($stdout.string).to eq(description)
+  ensure
+    $stdout = STDOUT
+  end
+end
 # TODO: print testcase count
