@@ -31,7 +31,7 @@ module Rspec
   def it_each(description, data_set, &block)
     describe '' do
       data_set.each do |data|
-        it "should be #{data[2]} if add #{data[0]} and #{data[1]}" do
+        it description.gsub(/\$(\d+)/) { |placeholder| data[placeholder.slice(1).to_i] } do
         end
       end
     end

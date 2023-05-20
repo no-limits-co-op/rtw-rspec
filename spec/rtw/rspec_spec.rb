@@ -133,9 +133,6 @@ it 'should assert not_to' do
   expect(2).not_to eq(3)
 end
 
-# TODO: generate testcases by using test data set
-  # TODO: dynamic description
-    # [[1, 1, 2]] -> should be $2 if add $0 and $1
 it 'should generate dynamic description' do
   begin
     $stdout = StringIO.new
@@ -154,7 +151,19 @@ it 'should generate dynamic description' do
     $stdout = STDOUT
   end
 end
+# TODO: generate testcases by using test data set
+# TODO: dynamic description
 # [{a: 1, b: 2, result: 3}] -> should be $result if add $a and $b
-  # dynamic function
-  # [[1,1,2],[1,2,3]] -> do |arg0, arg1, arg2| {assertion} end
-  # [{a: 1, b: 2, result: 3}, {}] -> do |a, b, result| {assertion} end
+
+# # TODO: dynamic function
+# # [[1,1,2],[1,2,3]] -> do |arg0, arg1, arg2| {assertion} end
+# it 'should generate dynamic description' do
+#   results = it_each 'should be $2 if add $0 and $1', [[1, 1, 2], [1, -1, -1]] do ||
+#     expect
+#   end
+#
+#   expect(results.results.size).to eq(2)
+#   expect(results.passed.size).to eq(1)
+#   expect(results.failed.size).to eq(1)
+# end
+# # [{a: 1, b: 2, result: 3}, {}] -> do |a, b, result| {assertion} end
