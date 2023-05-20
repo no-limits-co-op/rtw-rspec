@@ -14,7 +14,7 @@ module Rspec
   end
 
   def eq(expectation)
-    Matcher.new(expectation)
+    Matcher.new(expectation, Proc.new { |realistic, expectation| realistic.eql? expectation })
   end
 
   def expect(realistic)

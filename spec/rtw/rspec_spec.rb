@@ -128,3 +128,8 @@ it 'should print description and run statistic of describe and context' do
     $stdout = STDOUT
   end
 end
+
+# TODO: assertion not_to equal
+it 'should assert not_to' do
+  expect(2).not_to eq(3)
+end
