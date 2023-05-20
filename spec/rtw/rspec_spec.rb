@@ -128,5 +128,3 @@ it 'should print description and run statistic of describe and context' do
     $stdout = STDOUT
   end
 end
-
-# TODO: print testcase by nested ordering
