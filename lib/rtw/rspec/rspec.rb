@@ -28,5 +28,14 @@ module Rspec
     results
   end
 
+  def it_each(description, data_set, &block)
+    describe '' do
+      data_set.each do |data|
+        it "should be #{data[2]} if add #{data[0]} and #{data[1]}" do
+        end
+      end
+    end
+  end
+
   alias_method :context, :describe
 end

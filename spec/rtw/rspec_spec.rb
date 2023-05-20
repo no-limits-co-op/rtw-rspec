@@ -129,7 +129,32 @@ it 'should print description and run statistic of describe and context' do
   end
 end
 
-# TODO: assertion not_to equal
 it 'should assert not_to' do
   expect(2).not_to eq(3)
 end
+
+# TODO: generate testcases by using test data set
+  # TODO: dynamic description
+    # [[1, 1, 2]] -> should be $2 if add $0 and $1
+it 'should generate dynamic description' do
+  begin
+    $stdout = StringIO.new
+    it_each 'should be $2 if add $0 and $1', [[1, 1, 2], [0, -1, -1]] do
+    end
+    description = <<~DESC
+
+      should be 2 if add 1 and 1
+      should be -1 if add 0 and -1
+    
+      total: 2, failed: 0, passed: 2
+    DESC
+
+    expect($stdout.string).to eq(description)
+  ensure
+    $stdout = STDOUT
+  end
+end
+# [{a: 1, b: 2, result: 3}] -> should be $result if add $a and $b
+  # dynamic function
+  # [[1,1,2],[1,2,3]] -> do |arg0, arg1, arg2| {assertion} end
+  # [{a: 1, b: 2, result: 3}, {}] -> do |a, b, result| {assertion} end
