@@ -8,11 +8,11 @@ module Rspec
     end
 
     def match(realistic)
-      @matcher.call(realistic, expectation)
+      @matcher.call(realistic)
     end
 
     def not
-      Matcher.new(@expectation, Proc.new { |realistic, expectation| !@matcher.call(realistic, expectation) })
+      Matcher.new(@expectation, Proc.new { |realistic| !@matcher.call(realistic) })
     end
   end
 end
