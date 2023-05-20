@@ -32,6 +32,7 @@ module Rspec
     describe '' do
       data_set.each do |data|
         it description.gsub(/\$(\d+)/) { |placeholder| data[placeholder.slice(1).to_i] } do
+          block.call(*data)
         end
       end
     end

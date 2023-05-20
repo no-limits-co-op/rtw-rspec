@@ -151,19 +151,25 @@ it 'should generate dynamic description' do
     $stdout = STDOUT
   end
 end
+
+it 'should generate dynamic testcase block' do
+  results = it_each 'should be $2 if add $0 and $1', [[1, 1, 2], [0, -1, -1]] do |a, b, c|
+    expect(a + b).to eq(c)
+  end
+
+  expect(results.results.size).to eq(2)
+  expect(results.passed.size).to eq(2)
+
+  results = it_each 'should be $2 if add $0 and $1', [[2, 1, 2], [1, -1, -1]] do |a, b, c|
+    expect(a + b).not_to eq(c)
+  end
+
+  expect(results.results.size).to eq(2)
+  expect(results.passed.size).to eq(2)
+end
+
 # TODO: generate testcases by using test data set
 # TODO: dynamic description
 # [{a: 1, b: 2, result: 3}] -> should be $result if add $a and $b
-
-# # TODO: dynamic function
-# # [[1,1,2],[1,2,3]] -> do |arg0, arg1, arg2| {assertion} end
-# it 'should generate dynamic description' do
-#   results = it_each 'should be $2 if add $0 and $1', [[1, 1, 2], [1, -1, -1]] do ||
-#     expect
-#   end
-#
-#   expect(results.results.size).to eq(2)
-#   expect(results.passed.size).to eq(1)
-#   expect(results.failed.size).to eq(1)
-# end
-# # [{a: 1, b: 2, result: 3}, {}] -> do |a, b, result| {assertion} end
+# TODO: dynamic function
+# [{a: 1, b: 2, result: 3}, {}] -> do |a, b, result| {assertion} end
