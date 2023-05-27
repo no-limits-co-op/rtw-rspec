@@ -1,4 +1,5 @@
 require 'date'
+require_relative 'describe_instance'
 
 class Runner
   def initialize
@@ -6,19 +7,11 @@ class Runner
     @hooks_before_stack = []
   end
 
-  def run(testcases)
-    describe_id = DateTime.now.strftime('%Y%m%d%H%M%S%L') + (Random.rand * 1000).floor.to_s.ljust(4, '0')
-    @describe_stack.push(Struct.new(:results, :describe_id) do
-      def failed
-        results.select(&:failed?)
-      end
-
-      def passed
-        results.select(&:passed?)
-      end
-    end.new([], describe_id))
-    instance_eval(&testcases)
-    @hooks_before_stack.pop if @hooks_before_stack.size > 0 && describe_id == @hooks_before_stack.last[:describe_id]
+  def run(test_suite)
+    describe_instance = DescribeInstance.new([])
+    @describe_stack.push(describe_instance)
+    instance_eval(&test_suite)
+    @hooks_before_stack.pop if @hooks_before_stack.size > 0 && describe_instance.describe_id == @hooks_before_stack.last[:describe_id]
     @describe_stack.pop
   end
 
@@ -52,3 +45,6 @@ class Runner
     result
   end
 end
+
+require_relative 'describe_instance.rb'
+
