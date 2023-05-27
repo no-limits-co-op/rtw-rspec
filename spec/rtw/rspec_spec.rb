@@ -277,3 +277,31 @@ it 'should run multiple before hooks before run it' do
     end
   end
 end
+
+it 'should run after hooks after running it' do
+  test_counter = 0
+  describe 'within single level after hook' do
+    after do
+      test_counter += 1
+    end
+    describe 'nested describe after hooks' do
+      after do
+        test_counter += 1
+      end
+      after do
+        test_counter += 1
+      end
+
+      it 'should do noting' do
+      end
+    end
+
+    it 'should test_counter equals 3' do
+      expect(test_counter).to eq(3)
+    end
+  end
+
+  expect(test_counter).to eq(4)
+end
+
+
