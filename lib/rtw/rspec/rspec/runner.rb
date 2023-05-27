@@ -26,11 +26,15 @@ class Runner
   alias context describe
 
   def before(&block)
-    @hooks_before_stack.push({ describe_id: @describe_stack.last.describe_id, function: Proc.new { block.call } })
+    if @hooks_before_stack.size > 0 && @hooks_before_stack.last[:describe_id] == @describe_stack.last.describe_id
+      @hooks_before_stack.last[:functions].push(Proc.new { block.call })
+    else
+      @hooks_before_stack.push({ describe_id: @describe_stack.last.describe_id, functions: [Proc.new { block.call }] })
+    end
   end
 
   def it(description = nil)
-    @hooks_before_stack.each { |hook| hook[:function].call }
+    @hooks_before_stack.each { |hook| hook[:functions].each(&:call) }
     begin
       yield
       result = TestResult.new(description)

@@ -252,3 +252,28 @@ it 'should run nested levels before hook' do
   end
   expect(results.passed.size).to eq(2)
 end
+
+it 'should run multiple before hooks before run it' do
+  describe 'within single level before hook' do
+    test_counter = 0
+    before do
+      test_counter += 1
+    end
+    describe 'nested before describe' do
+      before do
+        test_counter += 1
+      end
+      before do
+        test_counter += 1
+      end
+      it 'should do nothing' do; end
+    end
+
+    it 'should test_counter equals 4' do
+      expect(test_counter).to eq(4)
+    end
+    it 'should test_counter equals 5' do
+      expect(test_counter).to eq(5)
+    end
+  end
+end
