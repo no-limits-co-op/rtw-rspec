@@ -1,10 +1,14 @@
+require 'date'
+
 class Runner
   def initialize
     @describe_stack = []
+    @hooks_before_stack = []
   end
 
   def run(testcases)
-    @describe_stack.push(Struct.new(:results) do
+    describe_id = DateTime.now.strftime('%Y%m%d%H%M%S%L') + (Random.rand * 1000).floor.to_s.ljust(4, '0')
+    @describe_stack.push(Struct.new(:results, :describe_id) do
       def failed
         results.select(&:failed?)
       end
@@ -12,8 +16,9 @@ class Runner
       def passed
         results.select(&:passed?)
       end
-    end.new([]))
+    end.new([], describe_id))
     instance_eval(&testcases)
+    @hooks_before_stack.pop if @hooks_before_stack.size > 0 && describe_id == @hooks_before_stack.last[:describe_id]
     @describe_stack.pop
   end
 
@@ -27,7 +32,12 @@ class Runner
 
   alias context describe
 
+  def before(&block)
+    @hooks_before_stack.push({ describe_id: @describe_stack.last.describe_id, function: Proc.new { block.call } })
+  end
+
   def it(description = nil)
+    @hooks_before_stack.each { |hook| hook[:function].call }
     begin
       yield
       result = TestResult.new(description)

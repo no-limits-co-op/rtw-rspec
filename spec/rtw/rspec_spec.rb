@@ -202,3 +202,53 @@ it 'should generate dynamic testcase block with Hash' do
   expect(results.results.size).to eq(2)
   expect(results.failed.size).to eq(2)
 end
+
+it 'should run single before hook before run it' do
+  describe 'within single level before hook' do
+    test_counter = 0
+    before do
+      test_counter += 1
+    end
+    it 'should test_counter equals 1' do
+      expect(test_counter).to eq(1)
+    end
+    it 'should test_counter equals 2' do
+      expect(test_counter).to eq(2)
+    end
+  end
+end
+
+it 'should run nested levels before hook' do
+  results = describe 'outer level before hook' do
+    outer_running = false
+    inner_running = false
+    outer_counter = 0
+    inner_counter = 0
+
+    before do
+      outer_running = true
+      outer_counter += 1
+      puts 'outer'
+    end
+
+    describe 'nested describe' do
+      before do
+        inner_running = true
+        inner_counter += 1
+      end
+
+      it 'should inner var equals 2 and outer var equals 0' do
+        expect(inner_running).to eq(true)
+        expect(inner_counter).to eq(1)
+        expect(outer_counter).to eq(1)
+      end
+    end
+
+    it 'should outer var equals 0 and inner var can\'t equals 2' do
+      expect(outer_running).to eq(true)
+      expect(inner_counter).to eq(1)
+      expect(outer_counter).to eq(2)
+    end
+  end
+  expect(results.passed.size).to eq(2)
+end
