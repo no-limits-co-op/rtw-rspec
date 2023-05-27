@@ -133,7 +133,7 @@ it 'should assert not_to' do
   expect(2).not_to eq(3)
 end
 
-it 'should generate dynamic description' do
+it 'should generate dynamic description with Array' do
   begin
     $stdout = StringIO.new
     it_each 'should be $2 if add $0 and $1', [[1, 1, 2], [0, -1, -1]] do
@@ -152,7 +152,7 @@ it 'should generate dynamic description' do
   end
 end
 
-it 'should generate dynamic testcase block' do
+it 'should generate dynamic testcase block with Array' do
   results = it_each 'should be $2 if add $0 and $1', [[1, 1, 2], [0, -1, -1]] do |a, b, c|
     expect(a + b).to eq(c)
   end
@@ -168,8 +168,37 @@ it 'should generate dynamic testcase block' do
   expect(results.passed.size).to eq(2)
 end
 
-# TODO: generate testcases by using test data set
-# TODO: dynamic description
-# [{a: 1, b: 2, result: 3}] -> should be $result if add $a and $b
-# TODO: dynamic function
-# [{a: 1, b: 2, result: 3}, {}] -> do |a, b, result| {assertion} end
+it 'should generate dynamic testcase description with Hash' do
+  begin
+    $stdout = StringIO.new
+    it_each 'should be $result if add $a and $b', [{ a: 1, b: 1, result: 2 }, { a: 0, b: -1, result: -1 }] do
+    end
+    description = <<~DESC
+
+      should be 2 if add 1 and 1
+      should be -1 if add 0 and -1
+
+      total: 2, failed: 0, passed: 2
+    DESC
+
+    expect($stdout.string).to eq(description)
+  ensure
+    $stdout = STDOUT
+  end
+end
+
+it 'should generate dynamic testcase block with Hash' do
+  results = it_each 'should be $result if add $a and $b', [{ a: 1, b: 1, result: 2 }, { a: 0, b: -1, result: -1 }] do |result:, a:, b:|
+    expect(a + b).to eq(result)
+  end
+
+  expect(results.results.size).to eq(2)
+  expect(results.passed.size).to eq(2)
+
+  results = it_each 'should be $result if add $a and $b', [{ a: 2, b: 1, result: 2 }, { a: 1, b: -1, result: -1 }] do |b:, a:, result:|
+    expect(a + b).to eq(result)
+  end
+
+  expect(results.results.size).to eq(2)
+  expect(results.failed.size).to eq(2)
+end

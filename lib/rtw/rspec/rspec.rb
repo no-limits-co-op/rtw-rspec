@@ -31,8 +31,14 @@ module Rspec
   def it_each(description, data_set, &block)
     describe '' do
       data_set.each do |data|
-        it description.gsub(/\$(\d+)/) { |placeholder| data[placeholder.slice(1).to_i] } do
-          block.call(*data)
+        if data.is_a?(Hash)
+          it description.gsub(/\$(\w+)/) { |placeholder| data[placeholder.slice(1..-1).to_sym] } do
+            block.call(data)
+          end
+        else
+          it description.gsub(/\$(\d+)/) { |placeholder| data[placeholder.slice(1..-1).to_i] } do
+            block.call(*data)
+          end
         end
       end
     end
