@@ -1,21 +1,21 @@
 require 'date'
 require_relative 'describe'
 require_relative 'hook'
-require_relative 'hooks'
+require_relative 'hook_stack'
 
 class Runner
   def initialize
     @describe_stack = []
-    @hooks_after_stack = Hooks.new
-    @hooks_before_stack = Hooks.new
+    @hooks_after_stack = HookStack.new
+    @hooks_before_stack = HookStack.new
   end
 
   def run(test_suite)
     describe_instance = Describe.new([])
     @describe_stack.push(describe_instance)
     instance_eval(&test_suite)
-    @hooks_before_stack.release(describe_instance.describe_id)
-    @hooks_after_stack.release(describe_instance.describe_id)
+    @hooks_before_stack.release!(describe_instance.describe_id)
+    @hooks_after_stack.release!(describe_instance.describe_id)
     @describe_stack.pop
   end
 
@@ -46,7 +46,7 @@ class Runner
       result = TestResult.new(description, e)
     end
 
-    @hooks_after_stack.execute(true)
+    @hooks_after_stack.execute_reverse
 
     result.print
     parent = @describe_stack.pop
@@ -60,6 +60,6 @@ class Runner
   def store_hooks(block, hooks_stack)
     describe_id = @describe_stack.last.describe_id
     function = Proc.new { block.call }
-    hooks_stack.store_hooks(describe_id, function)
+    hooks_stack.store(describe_id, function)
   end
 end
