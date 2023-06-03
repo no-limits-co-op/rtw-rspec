@@ -1,4 +1,4 @@
-class DescribeInstance
+class Describe
   attr_reader :describe_id, :results
 
   def initialize(results)
