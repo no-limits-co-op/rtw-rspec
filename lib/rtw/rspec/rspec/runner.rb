@@ -52,7 +52,7 @@ class Runner
       result = TestResult.new(description, e)
     end
 
-    @hooks_after_stack.each { |hook| hook[:functions].each(&:call) }
+    @hooks_after_stack.reverse.each { |hook| hook[:functions].reverse.each(&:call) }
 
     result.print
     parent = @describe_stack.pop
