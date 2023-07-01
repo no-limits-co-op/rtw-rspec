@@ -8,6 +8,7 @@ class Runner
     @describe_stack = []
     @hooks_after_stack = HookStack.new
     @hooks_before_stack = HookStack.new
+    @let_stack = []
   end
 
   def run(test_suite)
@@ -16,6 +17,10 @@ class Runner
     instance_eval(&test_suite)
     @hooks_before_stack.release!(describe_instance.describe_id)
     @hooks_after_stack.release!(describe_instance.describe_id)
+    lets = @let_stack.pop
+    lets[:name].each do |var_name|
+      remove_instance_variable("@#{var_name}")
+    end
     @describe_stack.pop
   end
 
@@ -28,6 +33,18 @@ class Runner
   end
 
   alias context describe
+
+  def let(var_name)
+    describe_id = @describe_stack.last.describe_id
+    instance_variable_name = "@#{var_name}"
+    if @let_stack.last && @let_stack.last[:describe_id] == describe_id
+      @let_stack.last[:name].push(var_name)
+    else
+      @let_stack.push({ describe_id: describe_id, name: [var_name] })
+    end
+    instance_variable_set(instance_variable_name, yield)
+    singleton_class.class_eval { attr_reader var_name.to_s }
+  end
 
   def before(&block)
     store_hooks(block, @hooks_before_stack)
