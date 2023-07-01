@@ -2,6 +2,7 @@ require 'date'
 require_relative 'describe'
 require_relative 'hook'
 require_relative 'hook_stack'
+require_relative 'variable.rb'
 
 class Runner
   def initialize
@@ -18,9 +19,9 @@ class Runner
     @hooks_before_stack.release!(describe_instance.describe_id)
     @hooks_after_stack.release!(describe_instance.describe_id)
     lets = @let_stack.pop
-    lets[:name].each do |var_name|
-      singleton_class.undef_method var_name
-    end
+    lets[:variables].each do |variable|
+      variable.remove!(self)
+    end if lets
     @describe_stack.pop
   end
 
@@ -35,29 +36,13 @@ class Runner
   alias context describe
 
   def let(var_name, &block)
-    describe_id = @describe_stack.last.describe_id
-    if @let_stack.last && @let_stack.last[:describe_id] == describe_id
-      @let_stack.last[:name].push(var_name)
-    else
-      @let_stack.push({ describe_id: describe_id, name: [var_name] })
-    end
-    dynamic_var_name = "@#{var_name}"
-    instance_variable_set(dynamic_var_name, block)
-    singleton_class.define_method(var_name, Proc.new do
-      return instance_variable_get(dynamic_var_name) unless instance_variable_get(dynamic_var_name).is_a? Proc
-      instance_variable_set(dynamic_var_name, block.call)
-    end)
+    variable = store_let_stack(var_name, block)
+    variable.insert(self)
   end
 
-  def let!(var_name)
-    describe_id = @describe_stack.last.describe_id
-    if @let_stack.last && @let_stack.last[:describe_id] == describe_id
-      @let_stack.last[:name].push(var_name)
-    else
-      @let_stack.push({ describe_id: describe_id, name: [var_name] })
-    end
-    cal_res = yield
-    singleton_class.define_method(var_name, Proc.new { cal_res })
+  def let!(var_name, &block)
+    variable = store_let_stack(var_name, block)
+    variable.insert!(self)
   end
 
   def before(&block)
@@ -87,6 +72,17 @@ class Runner
   end
 
   private
+
+  def store_let_stack(var_name, block)
+    variable = Variable.new(var_name, block)
+    describe_id = @describe_stack.last.describe_id
+    if @let_stack.last && @let_stack.last[:describe_id] == describe_id
+      @let_stack.last[:variables].push(variable)
+    else
+      @let_stack.push({ describe_id: describe_id, variables: [variable] })
+    end
+    variable
+  end
 
   def store_hooks(block, hooks_stack)
     describe_id = @describe_stack.last.describe_id
