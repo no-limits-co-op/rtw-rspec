@@ -3,6 +3,8 @@ require_relative 'describe'
 require_relative 'hook'
 require_relative 'hook_stack'
 require_relative 'variable.rb'
+require_relative 'matcher.rb'
+require_relative 'assertion.rb'
 
 class Runner
   def initialize
@@ -53,10 +55,10 @@ class Runner
     store_hooks(block, @hooks_after_stack)
   end
 
-  def it(description = nil)
+  def it(description = nil, &block)
     @hooks_before_stack.execute
     begin
-      yield
+      instance_eval(&block)
       result = TestResult.new(description)
     rescue StandardError => e
       result = TestResult.new(description, e)
@@ -69,6 +71,14 @@ class Runner
     parent.results << result
     @describe_stack.push(parent)
     result
+  end
+
+  def eq(expectation)
+    Matcher.new(expectation, Proc.new { |realistic| realistic.eql? expectation })
+  end
+
+  def expect(realistic)
+    Assertion.new(realistic)
   end
 
   private

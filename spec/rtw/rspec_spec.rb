@@ -2,6 +2,7 @@ require "rtw/rspec"
 require 'stringio'
 
 it 'single testcase should pass' do
+  puts self
   result = it { 1 + 1 }
   expect(result.passed?).to eq(true)
 end
@@ -250,7 +251,7 @@ it 'should run nested levels before hook' do
       expect(outer_counter).to eq(2)
     end
   end
-  expect(results.passed.size).to eq(2)
+  expect(results[0].passed.size).to eq(2)
 end
 
 it 'should run multiple before hooks before run it' do

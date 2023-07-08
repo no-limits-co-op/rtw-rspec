@@ -6,20 +6,18 @@ require_relative 'rspec/test_result.rb'
 module Rspec
   def it(description = nil, &block)
     results = describe do
-      it description do
-        block.call
-      end
+      it description, &block
     end.results
     results.first
   end
 
-  def eq(expectation)
-    Matcher.new(expectation, Proc.new { |realistic| realistic.eql? expectation })
-  end
-
-  def expect(realistic)
-    Assertion.new(realistic)
-  end
+  # def eq(expectation)
+  #   Matcher.new(expectation, Proc.new { |realistic| realistic.eql? expectation })
+  # end
+  #
+  # def expect(realistic)
+  #   Assertion.new(realistic)
+  # end
 
   def describe(description = nil, &block)
     puts description unless description.nil?
