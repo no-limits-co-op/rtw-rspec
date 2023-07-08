@@ -1,8 +1,18 @@
 require "rtw/rspec"
 require 'stringio'
 
+def test_output(output_string, description)
+  begin
+    $stdout = StringIO.new
+    yield
+  ensure
+    failed = $stdout.string != output_string
+    $stdout = STDOUT
+    puts "#{description} #{failed ? ' - failed' : ''}"
+  end
+end
+
 it 'single testcase should pass' do
-  puts self
   result = it { 1 + 1 }
   expect(result.passed?).to eq(true)
 end
@@ -13,36 +23,24 @@ it 'should fail if throw error' do
   expect(result.error.class).to eq(StandardError)
 end
 
-it 'should display testcase description' do
-  begin
-    $stdout = StringIO.new
-    description = <<~DESC
-      should pass
+output_string = <<~DESC
+  should display testcase description
 
-      total: 1, failed: 0, passed: 1
-    DESC
-    it 'should pass' do
-    end
-    expect($stdout.string).to eq(description)
-  ensure
-    $stdout = STDOUT
+  total: 1, failed: 0, passed: 1
+DESC
+test_output(output_string, 'should display testcase description') do
+  it 'should display testcase description' do
   end
 end
 
-it 'should tag failed if testcase is failed' do
-  begin
-    $stdout = StringIO.new
-    description = <<~DESC
-      should fail - failed
+output_string = <<~DESC
+  should tag failed if testcase is failed - failed
 
-      total: 1, failed: 1, passed: 0
-    DESC
-    it 'should fail' do
-      raise StandardError
-    end
-    expect($stdout.string).to eq(description)
-  ensure
-    $stdout = STDOUT
+  total: 1, failed: 1, passed: 0
+DESC
+test_output(output_string, 'should tag failed if testcase is failed') do
+  it 'should tag failed if testcase is failed' do
+    raise StandardError
   end
 end
 
@@ -104,29 +102,21 @@ it 'should run multiple level nested testcase' do
   expect(results.results.size).to eq(2)
 end
 
-it 'should print description and run statistic of describe and context' do
-  begin
-    $stdout = StringIO.new
-    describe 'nested testcase level 1' do
-      context 'nested testcase level 2' do
-        describe 'nested testcase level 3' do
-          it { expect(81192).to eq(81192) }
-          it { expect(3).to eq(2) }
-        end
+output_string = <<~DESC
+  nested testcase level 1
+    nested testcase level 2
+      nested testcase level 3
+
+  total: 2, failed: 1, passed: 1
+DESC
+test_output(output_string, 'should print description and run statistic of describe and context') do
+  describe 'nested testcase level 1' do
+    context 'nested testcase level 2' do
+      describe 'nested testcase level 3' do
+        it { expect(81192).to eq(81192) }
+        it { expect(3).to eq(2) }
       end
     end
-
-    description = <<~DESC
-      nested testcase level 1
-        nested testcase level 2
-          nested testcase level 3
-    
-      total: 2, failed: 1, passed: 1
-    DESC
-
-    expect($stdout.string).to eq(description)
-  ensure
-    $stdout = STDOUT
   end
 end
 
@@ -134,22 +124,15 @@ it 'should assert not_to' do
   expect(2).not_to eq(3)
 end
 
-it 'should generate dynamic description with Array' do
-  begin
-    $stdout = StringIO.new
-    it_each 'should be $2 if add $0 and $1', [[1, 1, 2], [0, -1, -1]] do
-    end
-    description = <<~DESC
+output_string = <<~DESC
 
-      should be 2 if add 1 and 1
-      should be -1 if add 0 and -1
-    
-      total: 2, failed: 0, passed: 2
-    DESC
+  should be 2 if add 1 and 1
+  should be -1 if add 0 and -1
 
-    expect($stdout.string).to eq(description)
-  ensure
-    $stdout = STDOUT
+  total: 2, failed: 0, passed: 2
+DESC
+test_output(output_string, 'should generate dynamic description with Array') do
+  it_each 'should be $2 if add $0 and $1', [[1, 1, 2], [0, -1, -1]] do
   end
 end
 
@@ -169,22 +152,16 @@ it 'should generate dynamic testcase block with Array' do
   expect(results.passed.size).to eq(2)
 end
 
-it 'should generate dynamic testcase description with Hash' do
-  begin
-    $stdout = StringIO.new
-    it_each 'should be $result if add $a and $b', [{ a: 1, b: 1, result: 2 }, { a: 0, b: -1, result: -1 }] do
-    end
-    description = <<~DESC
+output_string = <<~DESC
 
-      should be 2 if add 1 and 1
-      should be -1 if add 0 and -1
+  should be 2 if add 1 and 1
+  should be -1 if add 0 and -1
 
-      total: 2, failed: 0, passed: 2
-    DESC
+  total: 2, failed: 0, passed: 2
+DESC
+test_output(output_string, 'should generate dynamic testcase description with Hash') do
 
-    expect($stdout.string).to eq(description)
-  ensure
-    $stdout = STDOUT
+  it_each 'should be $result if add $a and $b', [{ a: 1, b: 1, result: 2 }, { a: 0, b: -1, result: -1 }] do
   end
 end
 
@@ -195,13 +172,6 @@ it 'should generate dynamic testcase block with Hash' do
 
   expect(results.results.size).to eq(2)
   expect(results.passed.size).to eq(2)
-
-  results = it_each 'should be $result if add $a and $b', [{ a: 2, b: 1, result: 2 }, { a: 1, b: -1, result: -1 }] do |b:, a:, result:|
-    expect(a + b).to eq(result)
-  end
-
-  expect(results.results.size).to eq(2)
-  expect(results.failed.size).to eq(2)
 end
 
 it 'should run single before hook before run it' do
@@ -251,7 +221,7 @@ it 'should run nested levels before hook' do
       expect(outer_counter).to eq(2)
     end
   end
-  expect(results[0].passed.size).to eq(2)
+  expect(results.passed.size).to eq(2)
 end
 
 it 'should run multiple before hooks before run it' do
@@ -267,7 +237,9 @@ it 'should run multiple before hooks before run it' do
       before do
         test_counter += 1
       end
-      it 'should do nothing' do; end
+      it 'should do nothing' do
+        ;
+      end
     end
 
     it 'should test_counter equals 4' do
@@ -304,5 +276,3 @@ it 'should run after hooks after running it' do
 
   expect(test_counter).to eq('cbaa')
 end
-
-

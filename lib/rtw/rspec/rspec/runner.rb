@@ -33,6 +33,7 @@ class Runner
     parent = @describe_stack.pop
     parent.results.concat(results.results)
     @describe_stack.push(parent)
+    results
   end
 
   alias context describe
