@@ -11,8 +11,7 @@ module Rspec
   end
 
   def describe(description = nil, &block)
-    puts description unless description.nil?
-    results = Runner.new.run(block)
+    results = Runner.new.run(description, block)
     puts "\ntotal: #{results.results.size}, failed: #{results.failed.size}, passed: #{results.passed.size}"
     results
   end

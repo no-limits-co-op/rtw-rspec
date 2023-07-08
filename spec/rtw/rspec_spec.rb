@@ -13,14 +13,14 @@ def test_output(output_string, description)
 end
 
 it 'single testcase should pass' do
-  result = it { 1 + 1 }
-  expect(result.passed?).to eq(true)
+  testcase = it { 1 + 1 }
+  expect(testcase.result.passed?).to eq(true)
 end
 
 it 'should fail if throw error' do
-  result = it { raise StandardError }
-  expect(result.passed?).to eq(false)
-  expect(result.error.class).to eq(StandardError)
+  testcase = it { raise StandardError }
+  expect(testcase.result.passed?).to eq(false)
+  expect(testcase.result.error.class).to eq(StandardError)
 end
 
 output_string = <<~DESC
@@ -49,10 +49,10 @@ it 'should pass if assertion is passed' do
 end
 
 it 'should fail if assert failed' do
-  result = it { expect(3).to eq(8) }
-  expect(result.passed?).to eq(false)
-  expect(result.error.class).to eq(StandardError)
-  expect(result.error.to_s).to eq("AssertError - expect: 8;actual: 3;")
+  testcase = it { expect(3).to eq(8) }
+  expect(testcase.result.passed?).to eq(false)
+  expect(testcase.result.error.class).to eq(StandardError)
+  expect(testcase.result.error.to_s).to eq("AssertError - expect: 8;actual: 3;")
 end
 
 it 'describe should run a group of testcases' do

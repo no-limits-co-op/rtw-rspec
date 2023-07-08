@@ -5,8 +5,14 @@ require_relative 'hook_stack'
 require_relative 'variable.rb'
 require_relative 'matcher.rb'
 require_relative 'assertion.rb'
+require_relative 'test_case.rb'
 
 class Runner
+  attr_reader :hooks_before_stack,
+              :hooks_after_stack,
+              :let_stack,
+              :describe_stack
+
   def initialize
     @describe_stack = []
     @hooks_after_stack = HookStack.new
@@ -14,10 +20,11 @@ class Runner
     @let_stack = []
   end
 
-  def run(test_suite)
+  def run(description, block)
+    puts "#{'  ' * @describe_stack.size}#{description}" unless description.nil?
     describe_instance = Describe.new([])
     @describe_stack.push(describe_instance)
-    instance_eval(&test_suite)
+    instance_eval(&block)
     @hooks_before_stack.release!(describe_instance.describe_id)
     @hooks_after_stack.release!(describe_instance.describe_id)
     lets = @let_stack.pop
@@ -28,12 +35,23 @@ class Runner
   end
 
   def describe(description, &block)
-    puts "#{'  ' * @describe_stack.size}#{description}" unless description.nil?
-    results = run(block)
+    test_suite = run(description, block)
+    store_results(test_suite)
+    test_suite
+  end
+
+  def store_results(testcase)
+    return if @describe_stack.empty?
     parent = @describe_stack.pop
-    parent.results.concat(results.results)
+    parent.results.concat(testcase.results)
     @describe_stack.push(parent)
-    results
+  end
+
+  def it(description = nil, &block)
+    testcase = TestCase.new
+    testcase.run(description, block, @hooks_before_stack, @hooks_after_stack, self)
+    store_results(testcase)
+    testcase
   end
 
   alias context describe
@@ -54,24 +72,6 @@ class Runner
 
   def after(&block)
     store_hooks(block, @hooks_after_stack)
-  end
-
-  def it(description = nil, &block)
-    @hooks_before_stack.execute
-    begin
-      instance_eval(&block)
-      result = TestResult.new(description)
-    rescue StandardError => e
-      result = TestResult.new(description, e)
-    end
-
-    @hooks_after_stack.execute_reverse
-
-    result.print
-    parent = @describe_stack.pop
-    parent.results << result
-    @describe_stack.push(parent)
-    result
   end
 
   def eq(expectation)
