@@ -20,24 +20,18 @@ class Runner
     @let_stack = []
   end
 
-  def run(description, block)
-    puts "#{'  ' * @describe_stack.size}#{description}" unless description.nil?
-    describe_instance = Describe.new([])
-    @describe_stack.push(describe_instance)
-    instance_eval(&block)
-    @hooks_before_stack.release!(describe_instance.describe_id)
-    @hooks_after_stack.release!(describe_instance.describe_id)
-    lets = @let_stack.pop
-    lets[:variables].each do |variable|
-      variable.remove!(self)
-    end if lets
-    @describe_stack.pop
+  def run(test_suite)
+    test_suite.run(self)
+    store_results(test_suite)
+    test_suite
   end
 
   def describe(description, &block)
-    test_suite = run(description, block)
-    store_results(test_suite)
-    test_suite
+    run(Describe.new(description, block))
+  end
+
+  def it(description = nil, &block)
+    run(TestCase.new(description, block))
   end
 
   def store_results(testcase)
@@ -45,13 +39,6 @@ class Runner
     parent = @describe_stack.pop
     parent.results.concat(testcase.results)
     @describe_stack.push(parent)
-  end
-
-  def it(description = nil, &block)
-    testcase = TestCase.new
-    testcase.run(description, block, @hooks_before_stack, @hooks_after_stack, self)
-    store_results(testcase)
-    testcase
   end
 
   alias context describe

@@ -1,24 +1,26 @@
 class TestCase
   attr_reader :result
 
-  def initialize(result = nil)
-    @result = result
+  def initialize(description, block)
+    @description = description
+    @block = block
+    @result = nil
   end
 
   def results
     [@result]
   end
 
-  def run(description, block, before_hooks, after_hooks, runner)
-    before_hooks.execute
+  def run(runner)
+    runner.hooks_before_stack.execute
     begin
-      runner.instance_eval(&block)
-      @result = TestResult.new(description)
+      runner.instance_eval(&@block)
+      @result = TestResult.new(@description)
     rescue StandardError => e
-      @result = TestResult.new(description, e)
+      @result = TestResult.new(@description, e)
     end
 
-    after_hooks.execute_reverse
+    runner.hooks_after_stack.execute_reverse
     @result.print
     self
   end

@@ -11,7 +11,8 @@ module Rspec
   end
 
   def describe(description = nil, &block)
-    results = Runner.new.run(description, block)
+    test_suite = Describe.new(description, block)
+    results = Runner.new.run(test_suite)
     puts "\ntotal: #{results.results.size}, failed: #{results.failed.size}, passed: #{results.passed.size}"
     results
   end
